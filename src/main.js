@@ -15,9 +15,9 @@ function loadApod(date) {
         if (data.media_type === "image") {
             media = `<img src="${data.url}" />`
         } else if (data.url.includes("youtube")) {
-            media = `<iframe src="${data.url}"></iframe>`
+            media = `<iframe src="${data.url}" allow="autoplay; fullscreen;" allowfullscreen></iframe>`
         } else {
-            media = `<video src="${data.url }" controls></video>`
+            media = `<video src="${data.url }" controls autoplay></video>`
         }
 
         document.querySelector(".title").innerHTML = data.title
