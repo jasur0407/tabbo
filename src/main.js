@@ -4,12 +4,40 @@ const today = new Date().toISOString().split("T")[0]
 datepicker.value = today
 datepicker.max = today
 
-function loadApod(date) {
+function typeWordByWord(elementId, text, speed) {
+    return new Promise((resolve) => {
+        let index = 0;
+        const words = text.split(" ");
+        let element = document.getElementById(elementId);
 
-    document.querySelector("#app").innerHTML = "<p>loading...</p>"
+        const interval = setInterval(() => {
+            if (index < words.length) {
+                element.textContent += (index === 0 ? "" : " " + words[index]);
+                index += 1;
+            } else {
+                clearInterval(interval)
+                resolve()
+            }
+        }, speed)
+    })  
+}
+
+
+async function typeAnimation(titleText, bodyText) {
+    await typeWordByWord("title", titleText, 150);
+    await typeWordByWord("explanation", bodyText, 40);
+}
+
+async function loadApod(date) {
+
+    document.querySelector("#media").innerHTML = "<p>loading...</p>"
+    document.querySelector("#title").textContent = "";
+    document.querySelector("#explanation").textContent = "";
 
     fetch(`https://api.nasa.gov/planetary/apod?api_key=${API_KEY}&date=${date}`)
     .then(response => response.json()).then (data => {
+        let titleText = data.title;
+        let bodyText = data.explanation
         let media;
 
         if (data.media_type === "image") {
@@ -20,16 +48,15 @@ function loadApod(date) {
             media = `<video src="${data.url }" controls autoplay></video>`
         }
 
-        document.querySelector(".title").innerHTML = data.title
-
-        document.querySelector("#app").innerHTML = `
+        document.querySelector("#media").innerHTML = `
             ${media}
-            <p>${data.explanation}</p>
         `
+
+        typeAnimation(titleText, bodyText)
     })
 
     .catch(err => {
-        document.querySelector("#app").innerHTML = `<p>Error: ${err.message}</p>`;
+        document.querySelector("#media").innerHTML = `<p>Error: ${err.message}</p>`;
     })
 }
 
